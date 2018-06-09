@@ -1,0 +1,88 @@
+kernel:
+  image: linuxkit/kernel:4.14.48
+  cmdline: "console=tty0"
+init:
+  - wombat/init:dev
+  - wombat/runc:dev
+  - wombat/containerd:dev
+  - wombat/cni:dev
+  - wombat/ca-certificates:dev
+  - wombat/getty:dev
+onboot:
+  - name: sysctl
+    image: wombat/sysctl:dev
+    binds:
+     - /etc/sysctl.d/01-kubernetes.conf:/etc/sysctl.d/01-kubernetes.conf
+    readonly: false
+  - name: sysfs
+    image: wombat/sysfs:dev
+  - name: metadata
+    image: wombat/metadata:dev
+  - name: format
+    image: wombat/format:dev
+  - name: mounts
+    image: wombat/mount:dev
+    command: ["/usr/bin/mountie", "/var/lib/"]
+  - name: dhcpcd
+    image: wombat/dhcpcd:dev
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+services:
+  - name: dnsmasq
+    image: quay.io/coreos/dnsmasq:v0.5.0
+    net: host
+    capabilities:
+     - CAP_NET_ADMIN
+     - CAP_NET_BIND_SERVICE
+     - CAP_SETGID
+     - CAP_SETUID
+     - CAP_NET_RAW
+    binds:
+     - /etc/dnsmasq.conf:/etc/dnsmasq.conf
+  - name: rngd
+    image: wombat/rngd:dev
+    cgroupsPath: systemreserved/rngd
+  - name: ntpd
+    image: wombat/openntpd:dev
+    cgroupsPath: systemreserved/ntpd
+  - name: sshd
+    image: wombat/sshd:dev
+    cgroupsPath: systemreserved/sshd
+  - name: kubelet
+    image: wombat/kubelet:dev
+    cgroupsPath: podruntime/kubelet
+files:
+  - path: etc/dnsmasq.conf
+    source: ./config/contribs/dnsmasq/dnsmasq.conf
+  - path: etc/hosts
+    contents: |
+      192.168.57.21 node1.kubernit.com
+      192.168.57.22 node2.kubernit.com
+      192.168.57.23 node3.kubernit.com
+  - path: config/etc/matchbox
+    directory: true
+  - path: etc/linuxkit.yml
+    metadata: yaml
+  - path: etc/kubernetes
+    symlink: "/var/lib/kubeadm"
+  - path: etc/os-release
+    contents: |
+      PRETTY_NAME="Kubernit Project"
+  - path: usr/libexec/kubernetes/kubelet-plugins
+    symlink: "/var/lib/kubelet-plugins"
+  - path: etc/kubeadm/
+    directory: true
+  - path: etc/sysctl.d/01-kubernetes.conf
+    contents: 'net.ipv4.ip_forward = 1'
+  - path: etc/cni/net.d
+    directory: true
+  - path: opt/cni/bin
+    directory: true
+  - path: root/.ssh/authorized_keys
+    source: ~/.ssh/id_rsa.pub
+    mode: "0600"
+    optional: true
+  - path: etc/kubelet.sh.conf
+    contents: |
+      KUBELET_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+  - path: etc/kubeadm/kube-system.init/50-weave.yaml
+    source: net.yaml

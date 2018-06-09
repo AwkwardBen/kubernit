@@ -1,0 +1,8 @@
+{
+  "id": "node1",
+  "name": "kubernetes Node 1",
+  "profile": "kubeboot",
+  "selector": {
+    "mac": "52:54:00:a1:9c:ae"
+  }
+}

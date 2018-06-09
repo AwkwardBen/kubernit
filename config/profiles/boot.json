@@ -1,0 +1,9 @@
+{
+  "id": "kubeboot",
+  "name": "kubeboot",
+  "boot": {
+    "kernel": "/assets/kubernit-initrd.img",
+    "initrd": ["/assets/kubernit-kernel"],
+    "args": ["console=tty0"]
+  }
+}
