@@ -1,4 +1,4 @@
-FROM linuxkit/alpine:v0.1 AS build
+FROM wombat/alpine:v0.1 AS build
 RUN apk add --no-cache --initdb alpine-baselayout make gcc musl-dev git linux-headers
 
 ADD usermode-helper.c ./
@@ -19,9 +19,9 @@ RUN mkdir /tmp/bin && cd /tmp/bin/ && cp /go/bin/rc.init . && ln -s rc.init rc.s
 RUN cd /go/src/cmd/service && ./skanky-vendor.sh $GOPATH/src/github.com/containerd/containerd
 RUN go-compile.sh /go/src/cmd/service
 
-FROM linuxkit/alpine:90571a1a9059f3bf33ca3431bc5396aa837a47d3 AS mirror
+FROM wombat/alpine:v0.1 AS mirror
 RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
-RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl
+RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl iptables
 
 # Add /etc/ssl/certs so it can be bind-mounted into metadata package
 RUN mkdir -p /out/etc/ssl/certs

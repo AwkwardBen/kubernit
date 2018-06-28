@@ -330,19 +330,13 @@ func doResolvConf() {
 	write(link, "")
 }
 
-func doNetwork() {
+func doLoopback() {
 	// TODO use netlink instead
 	cmd := exec.Command("/sbin/ip", "addr", "add", "127.0.0.1/8", "dev", "lo", "brd", "+", "scope", "host")
 	_ = cmd.Run()
 	cmd = exec.Command("/sbin/ip", "route", "add", "127.0.0.0/8", "dev", "lo", "scope", "host")
 	_ = cmd.Run()
 	cmd = exec.Command("/sbin/ip", "link", "set", "lo", "up")
-	_ = cmd.Run()
-	cmd = exec.Command("/sbin/ip", "addr", "add", "192.168.57.2/24", "broadcast", "192.168.57.255", "scope", "global", "dev", "eth0")
-	_ = cmd.Run()
-	cmd = exec.Command("/sbin/ip", "route", "add", "default", "proto", "kernel", "scope", "link", "metric", "202", "dev", "eth0", "src", "192.168.57.2")
-	_ = cmd.Run()
-	cmd = exec.Command("/sbin/ip", "link", "set", "eth0", "up")
 	_ = cmd.Run()
 }
 
@@ -444,7 +438,7 @@ func main() {
 		doMounts()
 		doHotplug()
 		doClock()
-		doNetwork()
+		doLoopback()
 	}
 
 	doLimits()

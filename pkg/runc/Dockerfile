@@ -1,4 +1,4 @@
-FROM linuxkit/alpine:v0.1 as alpine
+FROM wombat/alpine:v0.1 as alpine
 # containerd v1.1.x requires go1.10 which is currently a separate package in Alpine 3.7
 # Use the same version of go for consistency.
 RUN \

@@ -8,7 +8,7 @@ if [ -f /etc/kubeadm/kubeadm.yaml ]; then
     fi
     kubeadm init --ignore-preflight-errors=all --config /etc/kubeadm/kubeadm.yaml
 else
-    kubeadm init --ignore-preflight-errors=all --kubernetes-version @KUBERNETES_VERSION@ $@
+    kubeadm init --ignore-preflight-errors=all --kubernetes-version @KUBERNETES_VERSION@ --pod-network-cidr=10.244.0.0/24 --service-cidr 10.200.0.0/16 $@
 fi
 
 # sorting by basename relies on the dirnames having the same number of directories

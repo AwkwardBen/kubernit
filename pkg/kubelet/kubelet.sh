@@ -15,20 +15,32 @@ if [ -n "$KUBELET_DISABLED" ] ; then
     exit 0
 fi
 
+if [ ! -e /var/lib/cni/.opt.defaults-extracted ] ; then
+    mkdir -p /var/lib/cni/bin
+    tar -xzf /root/cni.tgz -C /var/lib/cni/bin
+    touch /var/lib/cni/.opt.defaults-extracted
+fi
+
+if [ ! -e /var/lib/cni/.cni.conf-extracted ] && [ -d /run/config/cni ] ; then
+    mkdir -p /var/lib/cni/conf
+    cp /run/config/cni/* /var/lib/cni/conf/
+    touch /var/lib/cni/.cni.configs-extracted
+fi
+
 await=/etc/kubernetes/kubelet.conf
 
 if [ -f "/etc/kubernetes/kubelet.conf" ] ; then
     echo "kubelet.sh: kubelet already configured"
 elif [ -d /run/config/kubeadm ] ; then
     if [ -f /run/config/kubeadm/init ] ; then
-	echo "kubelet.sh: init cluster with metadata \"$(cat /run/config/kubeadm/init)\""
-	# This needs to be in the background since it waits for kubelet to start.
-	# We skip printing the token so it is not persisted in the log.
-	kubeadm-init.sh --skip-token-print $(cat /run/config/kubeadm/init) &
+	     echo "kubelet.sh: init cluster with metadata \"$(cat /run/config/kubeadm/init)\""
+	     # This needs to be in the background since it waits for kubelet to start.
+	     # We skip printing the token so it is not persisted in the log.
+	     kubeadm-init.sh --skip-token-print $(cat /run/config/kubeadm/init) &
     elif [ -e /run/config/kubeadm/join ] ; then
-	echo "kubelet.sh: joining cluster with metadata \"$(cat /run/config/kubeadm/join)\""
-	kubeadm join --ignore-preflight-errors=all $(cat /run/config/kubeadm/join)
-	await=/etc/kubernetes/bootstrap-kubelet.conf
+	     echo "kubelet.sh: joining cluster with metadata \"$(cat /run/config/kubeadm/join)\""
+	     kubeadm join --ignore-preflight-errors=all $(cat /run/config/kubeadm/join)
+	     await=/etc/kubernetes/bootstrap-kubelet.conf
     fi
 elif [ -e /run/config/userdata ] ; then
     echo "kubelet.sh: joining cluster with metadata \"$(cat /run/config/userdata)\""
@@ -63,7 +75,7 @@ exec kubelet --kubeconfig=/etc/kubernetes/kubelet.conf \
 	      --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf \
 	      --pod-manifest-path=/etc/kubernetes/manifests \
 	      --allow-privileged=true \
-	      --cluster-dns=10.96.0.10 \
+	      --cluster-dns=10.200.0.10 \
 	      --cluster-domain=cluster.local \
 	      --cgroups-per-qos=false \
 	      --enforce-node-allocatable= \
