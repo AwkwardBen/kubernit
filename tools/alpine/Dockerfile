@@ -41,7 +41,7 @@ RUN go get -u github.com/LK4D4/vndr
 # Update `FROM` in `pkg/containerd/Dockerfile`, `pkg/init/Dockerfile` and
 # `test/pkg/containerd/Dockerfile` when changing this.
 ENV CONTAINERD_REPO=https://github.com/containerd/containerd.git
-ENV CONTAINERD_COMMIT=v1.1.0
+ENV CONTAINERD_COMMIT=v1.1.1-rc.2
 RUN mkdir -p $GOPATH/src/github.com/containerd && \
   cd $GOPATH/src/github.com/containerd && \
   git clone https://github.com/containerd/containerd.git && \
@@ -50,14 +50,6 @@ RUN mkdir -p $GOPATH/src/github.com/containerd && \
 RUN apk add --no-cache btrfs-progs-dev gcc libc-dev linux-headers make libseccomp-dev
 RUN cd $GOPATH/src/github.com/containerd/containerd && \
   make binaries EXTRA_FLAGS="-buildmode pie" EXTRA_LDFLAGS='-extldflags "-fno-PIC -static"' BUILD_TAGS="static_build"
-
-RUN go get -u github.com/onsi/ginkgo/ginkgo \
-    && CRITEST_COMMIT=f37a5a1edb69ee742c6e42c57413fe6b63788085 \
-    && go get -d github.com/kubernetes-incubator/cri-tools/... \
-    && cd $GOPATH/src/github.com/kubernetes-incubator/cri-tools \
-    && git checkout $CRITEST_COMMIT \
-    && make \
-    && make install
 
 FROM alpine:3.7
 

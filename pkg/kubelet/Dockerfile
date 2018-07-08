@@ -1,10 +1,11 @@
-FROM wombat/alpine:v0.1 AS build
+FROM golang:1.10.3-alpine3.7 AS build
 
 # When changing kubernetes_version remember to also update:
 # - scripts/mk-image-cache-lst and run `make refresh-image-caches` from top-level
 # - pkg/e2e-test/Dockerfile
 ENV kubernetes_version v1.10.3
 ENV cni_version        v0.7.1
+ENV critools_version   v1.0.0-alpha.0
 
 RUN apk add -U --no-cache \
   bash \
@@ -18,6 +19,7 @@ RUN apk add -U --no-cache \
   linux-headers \
   make \
   rsync \
+  gcc \
   && true
 
 ENV GOPATH=/go PATH=$PATH:/go/bin
@@ -74,6 +76,8 @@ RUN apk add --no-cache --initdb -p /out \
     iptables \
     musl \
     openssl \
+    openrc \
+    rpcbind \
     socat \
     util-linux \
     nfs-utils \
@@ -97,3 +101,4 @@ WORKDIR /
 ENTRYPOINT ["/usr/bin/kubelet.sh"]
 COPY --from=build /out /
 ENV KUBECONFIG "/etc/kubernetes/admin.conf"
+EXPOSE 111/udp 111

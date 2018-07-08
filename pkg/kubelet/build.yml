@@ -5,7 +5,9 @@ arches:
   - amd64
 config:
   binds:
+  - /tmp:/tmp
   - /dev:/dev
+  - /usr/bin/ctr:/usr/bin/ctr
   - /etc/resolv.conf:/etc/resolv.conf
   - /etc/os-release:/etc/os-release
   - /run:/run:rshared,rbind
@@ -16,6 +18,7 @@ config:
   - /var/lib/kubelet-plugins:/usr/libexec/kubernetes/kubelet-plugins:rshared,rbind
   - /var/lib/cni/conf:/etc/cni/net.d:rshared,rbind
   - /var/lib/cni/bin:/opt/cni/bin:rshared,rbind
+  - /run/containerd/containerd.sock:/run/containerd/containerd.sock
   mounts:
   - type: bind
     source: /sys/fs/cgroup

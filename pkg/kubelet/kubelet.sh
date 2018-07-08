@@ -86,4 +86,6 @@ exec kubelet --kubeconfig=/etc/kubernetes/kubelet.conf \
 	      --kube-reserved-cgroup=podruntime \
 	      --system-reserved-cgroup=systemreserved \
 	      --cgroup-root=kubepods \
+        --container-runtime=remote \
+        --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
 	      $KUBELET_ARGS $@
