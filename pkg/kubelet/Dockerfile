@@ -3,9 +3,9 @@ FROM golang:1.10.3-alpine3.7 AS build
 # When changing kubernetes_version remember to also update:
 # - scripts/mk-image-cache-lst and run `make refresh-image-caches` from top-level
 # - pkg/e2e-test/Dockerfile
-ENV kubernetes_version v1.10.3
+ENV kubernetes_version v1.11.0
 ENV cni_version        v0.7.1
-ENV critools_version   v1.0.0-alpha.0
+ENV critools_version   v1.11.0
 
 RUN apk add -U --no-cache \
   bash \
@@ -57,6 +57,22 @@ RUN set -e;  \
     git checkout -q $CNI_COMMIT
 RUN ./build.sh
 
+### critools
+
+ENV CRITOOLS_URL https://github.com/kubernetes-incubator/cri-tools
+#ENV CRITOOLS_BRANCH pull/NNN/head
+ENV CRITOOLS_COMMIT ${critools_version}
+RUN mkdir -p $GOPATH/github.com/kubernetes-incubator/ && \
+    cd $GOPATH/github.com/kubernetes-incubator/ && \
+    git clone $CRITOOLS_URL cri-tools
+WORKDIR $GOPATH/github.com/kubernetes-incubator/cri-tools
+RUN set -e;  \
+    if [ -n "$CRITOOLS_BRANCH" ] ; then \
+        git fetch origin "CRITOOLS_BRANCH"; \
+    fi; \
+    git checkout -q $CRITOOLS_COMMIT
+RUN make binaries
+
 ## Construct final image
 
 RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
@@ -88,6 +104,9 @@ RUN cp $GOPATH/src/github.com/kubernetes/kubernetes/_output/bin/kubeadm /out/usr
 RUN cp $GOPATH/src/github.com/kubernetes/kubernetes/_output/bin/kubectl /out/usr/bin/kubectl
 
 RUN tar -czf /out/root/cni.tgz -C $GOPATH/github.com/containernetworking/plugins/bin .
+
+RUN cp $GOPATH/bin/crictl /out/usr/bin/crictl
+RUN cp $GOPATH/bin/critest /out/usr/bin/critest
 
 # Remove apk residuals. We have a read-only rootfs, so apk is of no use.
 RUN rm -rf /out/etc/apk /out/lib/apk /out/var/cache

@@ -27,25 +27,8 @@ onboot:
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: bridge
     image: busybox:latest
-    command:
-      - "/bin/sh"
-      - "-c"
-      - |
-        set -e
-        field() {
-            local f=$1
-            local d=$2
-            if [ -r "/run/config/cni.bridge/$f" ] ; then
-                cat "/run/config/cni.bridge/$f"
-            else
-                echo -e "\"$d\"\\n"
-            fi
-        }
     runtime:
       mkdir: ["/var/lib/cni/conf","/var/lib/cni/bin"]
-    binds:
-      - /var/lib:/var/lib
-      - /run/config:/run/config
 services:
   - name: rngd
     image: wombat/rngd:dev

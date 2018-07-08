@@ -11,7 +11,8 @@ else
     kubeadm init --ignore-preflight-errors=all \
     --cri-socket /run/containerd/containerd.sock \
     --kubernetes-version @KUBERNETES_VERSION@ \
-    --pod-network-cidr=10.244.0.0/16 $@
+    --pod-network-cidr=10.244.0.0/16 \
+    --service-cidr=10.200.0.0/16 $@
 fi
 
 # sorting by basename relies on the dirnames having the same number of directories
