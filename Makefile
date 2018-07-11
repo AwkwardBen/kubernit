@@ -1,6 +1,6 @@
 .PHONY: all build vhd pkg
 
-PKG = init containerd runc ca-certificates sysctl sysfs metadata format mount dhcpcd rngd openntpd sshd kubelet
+PKG = init containerd runc ca-certificates sysctl sysfs metadata format mount dhcpcd rngd openntpd sshd kubelet getty
 
 all: base $(PKG) build iso
 
@@ -16,4 +16,6 @@ build:
 	linuxkit build -format kernel+initrd -dir ${PWD}/config/assets kubernit.yaml
 
 iso:
-	linuxkit build -format iso-bios kubernit.yaml
+	linuxkit build -format iso-bios kubernit_master0.yaml
+	linuxkit build -format iso-bios kubernit_node0.yaml
+	linuxkit build -format iso-bios kubernit_node1.yaml

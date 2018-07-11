@@ -1,6 +1,16 @@
 #!/bin/sh
 set -e
 touch /var/lib/kubeadm/.kubeadm-init.sh-started
+
+for opt in $(cat /proc/cmdline); do
+	case "$opt" in
+	ipAddress=*)
+		fullAddress=${opt#ipAddress=}
+		ip=${fullAddress%,*}
+		;;
+	esac
+done
+
 if [ -f /etc/kubeadm/kubeadm.yaml ]; then
     echo Using the configuration from /etc/kubeadm/kubeadm.yaml
     if [ $# -ne 0 ] ; then
@@ -8,9 +18,10 @@ if [ -f /etc/kubeadm/kubeadm.yaml ]; then
     fi
     kubeadm init --ignore-preflight-errors=all --config /etc/kubeadm/kubeadm.yaml
 else
-    kubeadm init --ignore-preflight-errors=all \
-    --cri-socket /run/containerd/containerd.sock \
-    --kubernetes-version @KUBERNETES_VERSION@ \
+    kubeadm init --apiserver-advertise-address=$ip \
+    --ignore-preflight-errors=all \
+    --cri-socket=/run/containerd/containerd.sock \
+    --kubernetes-version=@KUBERNETES_VERSION@ \
     --pod-network-cidr=10.244.0.0/16 \
     --service-cidr=10.200.0.0/16 $@
 fi
