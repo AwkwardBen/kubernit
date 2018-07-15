@@ -73,3 +73,5 @@ files:
     contents: "1"
   - path: etc/kubeadm/kube-system.init/50-weave.yaml
     source: net.yaml
+  - path: run/config/kubeadm/untaint-master
+    contents: "1"

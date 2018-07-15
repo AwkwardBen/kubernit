@@ -21,7 +21,7 @@ RUN go-compile.sh /go/src/cmd/service
 
 FROM wombat/alpine:v0.1 AS mirror
 RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
-RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl iptables rpcbind
+RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl iptables socat
 
 # Add /etc/ssl/certs so it can be bind-mounted into metadata package
 RUN mkdir -p /out/etc/ssl/certs
