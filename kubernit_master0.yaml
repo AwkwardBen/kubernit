@@ -75,3 +75,6 @@ files:
     source: net.yaml
   - path: etc/kubeadm/kube-system.init/60-helm.yaml
     source: helm.yaml
+# uncomment for test
+#  - path: run/config/kubeadm/untaint-master
+#    contents: "1"
