@@ -5,7 +5,9 @@ arches:
   - amd64
 config:
   binds:
+  - /tmp:/tmp
   - /dev:/dev
+  - /usr/bin/ctr:/usr/bin/ctr
   - /etc/resolv.conf:/etc/resolv.conf
   - /etc/os-release:/etc/os-release
   - /run:/run:rshared,rbind
@@ -14,8 +16,9 @@ config:
   - /etc/kubelet.sh.conf:/etc/kubelet.sh.conf
   - /etc/kubeadm:/etc/kubeadm
   - /var/lib/kubelet-plugins:/usr/libexec/kubernetes/kubelet-plugins:rshared,rbind
-  - /etc/cni/net.d:/etc/cni/net.d:rshared,rbind
-  - /opt/cni/bin:/opt/cni/bin:rshared,rbind
+  - /var/lib/cni/conf:/etc/cni/net.d:rshared,rbind
+  - /var/lib/cni/bin:/opt/cni/bin:rshared,rbind
+  - /run/containerd/containerd.sock:/run/containerd/containerd.sock
   mounts:
   - type: bind
     source: /sys/fs/cgroup
@@ -32,5 +35,16 @@ config:
     - kubepods
     mkdir:
     - /var/lib/kubeadm
+    - /var/lib/cni/conf
+    - /var/lib/cni/bin
     - /var/lib/kubelet-plugins
     - /var/lib/nfs/statd/sm
+    mounts:
+    - type: bind
+      source: /var/lib/cni/bin
+      destination: /opt/cni/bin
+      options: ["rw","bind"]
+    - type: bind
+      source: /var/lib/cni/conf
+      destination: /etc/cni/net.d
+      options: ["rw","bind"]

@@ -1,6 +1,6 @@
 .PHONY: build
 
-ORG?=linuxkit
+ORG?=wombat
 IMAGE=alpine
 DEPS=packages
 VERSION=v0.1

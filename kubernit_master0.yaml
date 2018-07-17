@@ -1,11 +1,10 @@
 kernel:
   image: linuxkit/kernel:4.14.48
-  cmdline: "console=tty0"
+  cmdline: "console=tty0 ipAddress=192.168.57.10 ipBroadcast=192.167.57.255 ipMask=24"
 init:
   - wombat/init:dev
   - wombat/runc:dev
   - wombat/containerd:dev
-  - wombat/cni:dev
   - wombat/ca-certificates:dev
   - wombat/getty:dev
 onboot:
@@ -26,18 +25,11 @@ onboot:
   - name: dhcpcd
     image: wombat/dhcpcd:dev
     command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+  - name: bridge
+    image: busybox:latest
+    runtime:
+      mkdir: ["/var/lib/cni/conf","/var/lib/cni/bin"]
 services:
-  - name: dnsmasq
-    image: quay.io/coreos/dnsmasq:v0.5.0
-    net: host
-    capabilities:
-     - CAP_NET_ADMIN
-     - CAP_NET_BIND_SERVICE
-     - CAP_SETGID
-     - CAP_SETUID
-     - CAP_NET_RAW
-    binds:
-     - /etc/dnsmasq.conf:/etc/dnsmasq.conf
   - name: rngd
     image: wombat/rngd:dev
     cgroupsPath: systemreserved/rngd
@@ -51,13 +43,6 @@ services:
     image: wombat/kubelet:dev
     cgroupsPath: podruntime/kubelet
 files:
-  - path: etc/dnsmasq.conf
-    source: ./config/contribs/dnsmasq/dnsmasq.conf
-  - path: etc/hosts
-    contents: |
-      192.168.57.21 node1.kubernit.com
-      192.168.57.22 node2.kubernit.com
-      192.168.57.23 node3.kubernit.com
   - path: config/etc/matchbox
     directory: true
   - path: etc/linuxkit.yml
@@ -84,5 +69,9 @@ files:
   - path: etc/kubelet.sh.conf
     contents: |
       KUBELET_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+  - path: run/config/cni.bridge/debug-show-configs
+    contents: "1"
   - path: etc/kubeadm/kube-system.init/50-weave.yaml
     source: net.yaml
+  - path: etc/kubeadm/kube-system.init/60-helm.yaml
+    source: helm.yaml

@@ -1,11 +1,11 @@
-FROM linuxkit/alpine:f3cd219615428b2bd943411723eb28875275fae7 AS build
+FROM golang:1.10.3-alpine3.7 AS build
 
 # When changing kubernetes_version remember to also update:
 # - scripts/mk-image-cache-lst and run `make refresh-image-caches` from top-level
 # - pkg/e2e-test/Dockerfile
-ENV kubernetes_version v1.10.0
+ENV kubernetes_version v1.11.0
 ENV cni_version        v0.7.1
-ENV critools_version   v1.0.0-alpha.0
+ENV critools_version   v1.11.0
 
 RUN apk add -U --no-cache \
   bash \
@@ -19,6 +19,7 @@ RUN apk add -U --no-cache \
   linux-headers \
   make \
   rsync \
+  gcc \
   && true
 
 ENV GOPATH=/go PATH=$PATH:/go/bin
@@ -39,6 +40,22 @@ RUN set -e; \
     git checkout -q $KUBERNETES_COMMIT
 
 RUN make WHAT="cmd/kubelet cmd/kubectl cmd/kubeadm"
+
+### CNI plugins
+
+ENV CNI_URL https://github.com/containernetworking/plugins
+#ENV CNI_BRANCH pull/NNN/head
+ENV CNI_COMMIT ${cni_version}
+RUN mkdir -p $GOPATH/github.com/containernetworking/ && \
+    cd $GOPATH/github.com/containernetworking/ && \
+    git clone $CNI_URL plugins
+WORKDIR $GOPATH/github.com/containernetworking/plugins
+RUN set -e;  \
+    if [ -n "$CNI_BRANCH" ] ; then \
+        git fetch origin "CNI_BRANCH"; \
+    fi; \
+    git checkout -q $CNI_COMMIT
+RUN ./build.sh
 
 ### critools
 
@@ -75,6 +92,8 @@ RUN apk add --no-cache --initdb -p /out \
     iptables \
     musl \
     openssl \
+    openrc \
+    rpcbind \
     socat \
     util-linux \
     nfs-utils \
@@ -83,6 +102,8 @@ RUN apk add --no-cache --initdb -p /out \
 RUN cp $GOPATH/src/github.com/kubernetes/kubernetes/_output/bin/kubelet /out/usr/bin/kubelet
 RUN cp $GOPATH/src/github.com/kubernetes/kubernetes/_output/bin/kubeadm /out/usr/bin/kubeadm
 RUN cp $GOPATH/src/github.com/kubernetes/kubernetes/_output/bin/kubectl /out/usr/bin/kubectl
+
+RUN tar -czf /out/root/cni.tgz -C $GOPATH/github.com/containernetworking/plugins/bin .
 
 RUN cp $GOPATH/bin/crictl /out/usr/bin/crictl
 RUN cp $GOPATH/bin/critest /out/usr/bin/critest
@@ -99,3 +120,4 @@ WORKDIR /
 ENTRYPOINT ["/usr/bin/kubelet.sh"]
 COPY --from=build /out /
 ENV KUBECONFIG "/etc/kubernetes/admin.conf"
+EXPOSE 111/udp 111
