@@ -35,11 +35,9 @@ RUN set -e; \
     git checkout -q $HELM_COMMIT
 
 RUN glide install && make bootstrap build
+RUN ./bin/helm init --client-only
 
 RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
-#coreutils needed for du -B for disk image checks made by kubelet
-# example: $ du -s -B 1 /var/lib/kubelet/pods/...
-#          du: unrecognized option: B
 RUN apk add --no-cache --initdb -p /out \
     alpine-baselayout \
     busybox \
@@ -61,9 +59,12 @@ RUN apk add --no-cache --initdb -p /out \
     && true
 
 RUN cp $GOPATH/src/k8s.io/helm/bin/helm /out/usr/bin/helm
+RUN cp -R /root/.helm /out/root/.helm
+ADD host.sh /out/usr/bin/host.sh
 
 FROM scratch
-WORKDIR /
 ENTRYPOINT ["/usr/bin/host.sh"]
 COPY --from=build /out /
+COPY charts /host/charts
+WORKDIR /host
 EXPOSE 8879/udp 8879
