@@ -38,6 +38,10 @@ oom_score = 0
         runtime_type = ""
         runtime_engine = ""
         runtime_root = ""
+    [plugins.cri.cni]
+      bin_dir = "/opt/cni/bin"
+      conf_dir = "/etc/cni/net.d"
+      conf_template = ""
   [plugins.diff-service]
     default = ["walking"]
   [plugins.linux]

@@ -81,6 +81,7 @@ RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
 #          du: unrecognized option: B
 RUN apk add --no-cache --initdb -p /out \
     alpine-baselayout \
+    apk-tools \
     busybox \
     ca-certificates \
     coreutils \
