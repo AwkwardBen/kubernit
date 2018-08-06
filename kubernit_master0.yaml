@@ -6,7 +6,7 @@ init:
   - wombat/runc:dev
   - wombat/containerd:dev
   - wombat/ca-certificates:dev
-  - wombat/getty:dev
+#  - wombat/getty:dev
 onboot:
   - name: sysctl
     image: wombat/sysctl:dev
@@ -15,6 +15,9 @@ onboot:
     readonly: false
   - name: sysfs
     image: wombat/sysfs:dev
+  - name: dhcpcd
+    image: wombat/dhcpcd:dev
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: metadata
     image: wombat/metadata:dev
   - name: format
@@ -22,14 +25,16 @@ onboot:
   - name: mounts
     image: wombat/mount:dev
     command: ["/usr/bin/mountie", "/var/lib/"]
-  - name: dhcpcd
-    image: wombat/dhcpcd:dev
-    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: bridge
     image: busybox:latest
     runtime:
       mkdir: ["/var/lib/cni/conf","/var/lib/cni/bin"]
 services:
+  - name: getty
+    image: wombat/getty:dev
+    env:
+     - INSECURE=true
+    cgroupsPath: systemreserved/getty
   - name: rngd
     image: wombat/rngd:dev
     cgroupsPath: systemreserved/rngd
@@ -75,3 +80,5 @@ files:
     source: net.yaml
   - path: etc/kubeadm/kube-system.init/60-helm.yaml
     source: helm.yaml
+  - path: etc/kubeadm/kubeadm.yaml
+    source: config/master/kubeadm.yaml

@@ -1,4 +1,4 @@
-# wombat/alpine:176143816ecc42b9b4d836916f822bec422ca347-amd64
+# wombat/alpine:7d8aef9b6bd7067db908a78bc64ebef98c34c433-amd64
 # automatically generated list of installed packages
 abuild-3.1.0-r4
 alpine-baselayout-3.0.5-r2
@@ -36,7 +36,7 @@ cmake-3.9.5-r0
 coreutils-8.28-r0
 cryptsetup-1.7.5-r1
 cryptsetup-libs-1.7.5-r1
-curl-7.60.0-r1
+curl-7.61.0-r0
 db-5.3.28-r0
 dbus-libs-1.10.24-r0
 device-mapper-libs-2.02.175-r0
@@ -62,7 +62,7 @@ findmnt-2.31-r0
 findutils-4.6.0-r0
 flex-2.6.4-r1
 fortify-headers-0.9-r0
-fuse-2.9.7-r0
+fuse-2.9.8-r0
 g++-6.4.0-r5
 gc-7.6.0-r1
 gcc-6.4.0-r5
@@ -120,8 +120,8 @@ libcap-2.25-r1
 libcap-ng-0.7.8-r1
 libcap-ng-dev-0.7.8-r1
 libcom_err-1.43.7-r0
-libcrypto1.0-1.0.2o-r0
-libcurl-7.60.0-r1
+libcrypto1.0-1.0.2o-r1
+libcurl-7.61.0-r0
 libdrm-2.4.88-r0
 libedit-20170329.3.1-r3
 libelf-0.8.13-r3
@@ -167,7 +167,7 @@ libseccomp-2.3.2-r1
 libseccomp-dev-2.3.2-r1
 libsmartcols-2.31-r0
 libssh2-1.8.0-r2
-libssl1.0-1.0.2o-r0
+libssl1.0-1.0.2o-r1
 libstdc++-6.4.0-r5
 libtasn1-4.12-r3
 libtirpc-1.0.1-r2
@@ -216,8 +216,8 @@ openrc-0.24.1-r4
 openssh-keygen-7.5_p1-r8
 openssh-server-7.5_p1-r8
 openssh-server-common-7.5_p1-r8
-openssl-1.0.2o-r0
-openssl-dev-1.0.2o-r0
+openssl-1.0.2o-r1
+openssl-dev-1.0.2o-r1
 opus-1.2.1-r1
 ovmf-0.0.20170624-r0
 p11-kit-0.23.2-r2

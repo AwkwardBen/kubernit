@@ -2,9 +2,9 @@
 
 PKG = init containerd runc ca-certificates sysctl sysfs metadata format mount dhcpcd rngd openntpd sshd kubelet getty
 
-all: base $(PKG) build iso
+all: base $(PKG) iso
 
-packages: $(PKG) build iso
+packages: $(PKG) iso
 
 base:
 	@make -C tools/alpine build
@@ -12,10 +12,11 @@ base:
 $(PKG):
 	@linuxkit pkg build -org=wombat -disable-content-trust -dev pkg/$@
 
-build:
-	linuxkit build -format kernel+initrd -dir ${PWD}/config/assets kubernit.yaml
-
-iso:
+iso-masters:
 	linuxkit build -format iso-bios kubernit_master0.yaml
+
+iso-nodes:
 	linuxkit build -format iso-bios kubernit_node0.yaml
 	linuxkit build -format iso-bios kubernit_node1.yaml
+
+iso: iso-masters iso-nodes

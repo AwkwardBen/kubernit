@@ -11,12 +11,18 @@ for opt in $(cat /proc/cmdline); do
 	esac
 done
 
+# fix file system is readonly issue
+rm -rf /etc/ca-certificates
+rm -rf /usr/share/ca-certificates
+rm -rf /usr/local/share/ca-certificates
+
 if [ -f /etc/kubeadm/kubeadm.yaml ]; then
     echo Using the configuration from /etc/kubeadm/kubeadm.yaml
     if [ $# -ne 0 ] ; then
         echo WARNING: Ignoring command line options: $@
     fi
-    kubeadm init --ignore-preflight-errors=all --config /etc/kubeadm/kubeadm.yaml
+    kubeadm init --ignore-preflight-errors=all \
+		--config /etc/kubeadm/kubeadm.yaml
 else
     kubeadm init --apiserver-advertise-address=$ip \
     --ignore-preflight-errors=all \
@@ -31,17 +37,17 @@ YAML=$(ls -1 /run/config/kube-system.init/*.yaml /etc/kubeadm/kube-system.init/*
 for i in ${YAML}; do
     n=$(basename "$i")
     if [ -e "$i" ] ; then
-	if [ ! -s "$i" ] ; then # ignore zero sized files
-	    echo "Ignoring zero size file $n"
-	    continue
-	fi
-	echo "Applying $n"
-	if ! kubectl create -n kube-system -f "$i" ; then
-	    touch /var/lib/kubeadm/.kubeadm-init.sh-kube-system.init-failed
-	    touch /var/lib/kubeadm/.kubeadm-init.sh-kube-system.init-"$n"-failed
-	    echo "Failed to apply $n"
-	    continue
-	fi
+			if [ ! -s "$i" ] ; then # ignore zero sized files
+	    	echo "Ignoring zero size file $n"
+	    	continue
+			fi
+			echo "Applying $n"
+			if ! kubectl create -n kube-system -f "$i" ; then
+	    	touch /var/lib/kubeadm/.kubeadm-init.sh-kube-system.init-failed
+	    	touch /var/lib/kubeadm/.kubeadm-init.sh-kube-system.init-"$n"-failed
+	    	echo "Failed to apply $n"
+	    	continue
+			fi
     fi
 done
 if [ -f /run/config/kubeadm/untaint-master ] ; then
