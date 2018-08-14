@@ -1,12 +1,11 @@
 kernel:
-  image: linuxkit/kernel:4.14.48
+  image: linuxkit/kernel:4.14.59
   cmdline: "console=tty0 ipAddress=192.168.57.11 ipBroadcast=192.167.57.255 ipMask=24"
 init:
   - wombat/init:dev
   - wombat/runc:dev
   - wombat/containerd:dev
   - wombat/ca-certificates:dev
-  - wombat/getty:dev
 onboot:
   - name: sysctl
     image: wombat/sysctl:dev
@@ -15,6 +14,9 @@ onboot:
     readonly: false
   - name: sysfs
     image: wombat/sysfs:dev
+  - name: dhcpcd
+    image: wombat/dhcpcd:dev
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: metadata
     image: wombat/metadata:dev
   - name: format
@@ -22,14 +24,16 @@ onboot:
   - name: mounts
     image: wombat/mount:dev
     command: ["/usr/bin/mountie", "/var/lib/"]
-  - name: dhcpcd
-    image: wombat/dhcpcd:dev
-    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
   - name: bridge
     image: busybox:latest
     runtime:
       mkdir: ["/var/lib/cni/conf","/var/lib/cni/bin"]
 services:
+  - name: getty
+    image: wombat/getty:dev
+    env:
+     - INSECURE=true
+    cgroupsPath: systemreserved/getty
   - name: rngd
     image: wombat/rngd:dev
     cgroupsPath: systemreserved/rngd
@@ -43,8 +47,6 @@ services:
     image: wombat/kubelet:dev
     cgroupsPath: podruntime/kubelet
 files:
-  - path: config/etc/matchbox
-    directory: true
   - path: etc/linuxkit.yml
     metadata: yaml
   - path: etc/kubernetes
@@ -66,12 +68,12 @@ files:
     source: ~/.ssh/id_rsa.pub
     mode: "0600"
     optional: true
+  - path: run/config/kubeadm
+    directory: true
+  - path: etc/kubeadm/join
+    contents: ""
+  - path: etc/kubeadm/kubeadm.yaml
+    source: config/node/kubeadm.yaml
   - path: etc/kubelet.sh.conf
     contents: |
-      KUBELET_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
-  - path: run/config/cni.bridge/debug-show-configs
-    contents: "1"
-  - path: etc/kubeadm/kube-system.init/50-weave.yaml
-    source: net.yaml
-  - path: run/config/kubeadm/untaint-master
-    contents: "1"
+      KUBELET_ARGS="--node-ip=192.168.57.11"

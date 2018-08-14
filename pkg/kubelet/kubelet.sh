@@ -31,30 +31,19 @@ await=/etc/kubernetes/kubelet.conf
 
 if [ -f "/etc/kubernetes/kubelet.conf" ] ; then
     echo "kubelet.sh: kubelet already configured"
-elif [ -d /run/config/kubeadm ] ; then
-    if [ -f /run/config/kubeadm/init ] ; then
-	     echo "kubelet.sh: init cluster with metadata \"$(cat /run/config/kubeadm/init)\""
-	     # This needs to be in the background since it waits for kubelet to start.
-	     # We skip printing the token so it is not persisted in the log.
-	     kubeadm-init.sh --skip-token-print $(cat /run/config/kubeadm/init) &
-    elif [ -e /run/config/kubeadm/join ] ; then
-	     echo "kubelet.sh: joining cluster with metadata \"$(cat /run/config/kubeadm/join)\""
-	     kubeadm join --ignore-preflight-errors=all $(cat /run/config/kubeadm/join)
+elif [ -d /etc/kubeadm ] ; then
+    if [ -f /etc/kubeadm/init ] ; then
+	     echo "kubelet.sh: init cluster with metadata \"$(cat /etc/kubeadm/init)\""
+	     kubeadm.sh init --skip-token-print $(cat /etc/kubeadm/init) &
+    elif [ -f /etc/kubeadm/join ] ; then
+	     echo "kubelet.sh: joining cluster with metadata \"$(cat /etc/kubeadm/join)\""
+       kubeadm.sh join $(cat /etc/kubeadm/init)
 	     await=/etc/kubernetes/bootstrap-kubelet.conf
     fi
-elif [ -e /run/config/userdata ] ; then
-    echo "kubelet.sh: joining cluster with metadata \"$(cat /run/config/userdata)\""
-    kubeadm join --ignore-preflight-errors=all $(cat /run/config/userdata)
-    await=/etc/kubernetes/bootstrap-kubelet.conf
 fi
 
 echo "kubelet.sh: waiting for ${await}"
-# TODO(ijc) is there a race between kubeadm creating this file and
-# finishing the write where we might be able to fall through and
-# start kubelet with an incomplete configuration file? I've tried
-# to provoke such a race without success. An explicit
-# synchronisation barrier or changing kubeadm to write
-# kubelet.conf atomically might be good in any case.
+
 until [ -f "${await}" ] ; do
     sleep 1
 done

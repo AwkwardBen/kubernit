@@ -10,10 +10,10 @@ config:
   - /usr/bin/ctr:/usr/bin/ctr
   - /etc/resolv.conf:/etc/resolv.conf
   - /etc/os-release:/etc/os-release
+  - /etc/kubelet.sh.conf:/etc/kubelet.sh.conf
   - /run:/run:rshared,rbind
   - /var:/var:rshared,rbind
   - /var/lib/kubeadm:/etc/kubernetes
-  - /etc/kubelet.sh.conf:/etc/kubelet.sh.conf
   - /etc/kubeadm:/etc/kubeadm
   - /var/lib/kubelet-plugins:/usr/libexec/kubernetes/kubelet-plugins:rshared,rbind
   - /var/lib/cni/conf:/etc/cni/net.d:rshared,rbind
