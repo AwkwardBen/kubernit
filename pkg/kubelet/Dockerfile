@@ -5,7 +5,7 @@ FROM golang:1.10.3-alpine3.7 AS build
 # - pkg/e2e-test/Dockerfile
 ENV kubernetes_version v1.11.0
 ENV cni_version        v0.7.1
-ENV critools_version   v1.11.0
+ENV critools_version   v1.11.1
 
 RUN apk add -U --no-cache \
   bash \
@@ -113,8 +113,8 @@ RUN cp $GOPATH/bin/critest /out/usr/bin/critest
 RUN rm -rf /out/etc/apk /out/lib/apk /out/var/cache
 
 ADD kubelet.sh /out/usr/bin/kubelet.sh
-ADD kubeadm-init.sh /kubeadm-init.sh
-RUN sed -e "s/@KUBERNETES_VERSION@/${kubernetes_version}/g" </kubeadm-init.sh >/out/usr/bin/kubeadm-init.sh && chmod +x /out/usr/bin/kubeadm-init.sh
+ADD kubeadm.sh /kubeadm.sh
+RUN sed -e "s/@KUBERNETES_VERSION@/${kubernetes_version}/g" </kubeadm.sh >/out/usr/bin/kubeadm.sh && chmod +x /out/usr/bin/kubeadm.sh
 
 FROM scratch
 WORKDIR /

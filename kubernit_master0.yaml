@@ -1,12 +1,11 @@
 kernel:
-  image: linuxkit/kernel:4.14.48
+  image: linuxkit/kernel:4.14.59
   cmdline: "console=tty0 ipAddress=192.168.57.10 ipBroadcast=192.167.57.255 ipMask=24"
 init:
   - wombat/init:dev
   - wombat/runc:dev
   - wombat/containerd:dev
   - wombat/ca-certificates:dev
-#  - wombat/getty:dev
 onboot:
   - name: sysctl
     image: wombat/sysctl:dev
@@ -48,8 +47,6 @@ services:
     image: wombat/kubelet:dev
     cgroupsPath: podruntime/kubelet
 files:
-  - path: config/etc/matchbox
-    directory: true
   - path: etc/linuxkit.yml
     metadata: yaml
   - path: etc/kubernetes
@@ -71,14 +68,14 @@ files:
     source: ~/.ssh/id_rsa.pub
     mode: "0600"
     optional: true
-  - path: etc/kubelet.sh.conf
-    contents: |
-      KUBELET_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
-  - path: run/config/cni.bridge/debug-show-configs
-    contents: "1"
+  - path: etc/kubeadm/init
+    contents: ""
   - path: etc/kubeadm/kube-system.init/50-weave.yaml
     source: net.yaml
   - path: etc/kubeadm/kube-system.init/60-helm.yaml
     source: helm.yaml
   - path: etc/kubeadm/kubeadm.yaml
     source: config/master/kubeadm.yaml
+  - path: etc/kubelet.sh.conf
+    contents: |
+      KUBELET_ARGS="--node-ip=192.168.57.10"

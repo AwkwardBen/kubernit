@@ -18,18 +18,22 @@ rm -rf /usr/local/share/ca-certificates
 
 if [ -f /etc/kubeadm/kubeadm.yaml ]; then
     echo Using the configuration from /etc/kubeadm/kubeadm.yaml
-    if [ $# -ne 0 ] ; then
-        echo WARNING: Ignoring command line options: $@
-    fi
-    kubeadm init --ignore-preflight-errors=all \
-		--config /etc/kubeadm/kubeadm.yaml
+		if [ "$1" == "init" ]; then
+			extraPram=${@#init}
+			kubeadm init --config /etc/kubeadm/kubeadm.yaml $extraPram
+		elif [ "$1" == "join" ]; then
+			extraPram=${@#join}
+			kubeadm join --ignore-preflight-errors=all --config /etc/kubeadm/kubeadm.yaml $extraPram
+		fi
 else
-    kubeadm init --apiserver-advertise-address=$ip \
-    --ignore-preflight-errors=all \
-    --cri-socket=/run/containerd/containerd.sock \
-    --kubernetes-version=@KUBERNETES_VERSION@ \
-    --pod-network-cidr=10.244.0.0/16 \
-    --service-cidr=10.200.0.0/16 $@
+		echo Using the manual configuration
+		if [ "$1" == "init" ]; then
+			extraPram=${@#init}
+    	kubeadm init --ignore-preflight-errors=all --kubernetes-version @KUBERNETES_VERSION@ $extraPram
+		elif [ "$1" == "join" ]; then
+			extraPram=${@#join}
+			kubeadm join --ignore-preflight-errors=all --kubernetes-version @KUBERNETES_VERSION@ $extraPram
+		fi
 fi
 
 # sorting by basename relies on the dirnames having the same number of directories
