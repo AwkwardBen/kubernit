@@ -43,6 +43,9 @@ services:
   - name: sshd
     image: wombat/sshd:dev
     cgroupsPath: systemreserved/sshd
+  - name: helm
+    image: wombat/helm:dev
+    cgroupsPath: podruntime/helm
   - name: kubelet
     image: wombat/kubelet:dev
     cgroupsPath: podruntime/kubelet
