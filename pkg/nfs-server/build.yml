@@ -1,0 +1,8 @@
+image: nfs-server
+network: true
+config:
+  binds:
+    - /var/run:/var/run
+  capabilities:
+  - all
+  pid: host

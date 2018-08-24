@@ -73,10 +73,12 @@ files:
     optional: true
   - path: etc/kubeadm/init
     contents: ""
-  - path: etc/kubeadm/kube-system.init/50-weave.yaml
-    source: net.yaml
-  - path: etc/kubeadm/kube-system.init/60-helm.yaml
-    source: helm.yaml
+  - path: etc/kubeadm/kube-system.init/00-init.yaml
+    source: config/deploy/init.yaml
+  - path: etc/kubeadm/kube-system.init/10-network.yaml
+    source: config/deploy/net.yaml
+  - path: etc/kubeadm/kube-system.init/20-helm.yaml
+    source: config/deploy/helm.yaml
   - path: etc/kubeadm/kubeadm.yaml
     source: config/master/kubeadm.yaml
   - path: etc/kubelet.sh.conf

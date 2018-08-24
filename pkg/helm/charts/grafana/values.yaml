@@ -23,7 +23,7 @@ additionalServiceMonitorLabels: {}
 global:
   rbacEnable: true
   pspEnable: true
-  
+
   # Reference to one or more secrets to be used when pulling images
   imagePullSecrets: []
   #  - name: "image-pull-secret"
@@ -122,32 +122,31 @@ resources: {}
 ingress:
   ## If true, Grafana Ingress will be created
   ##
-  enabled: false
+  enabled: true
 
   ## Annotations for Alertmanager Ingress
   ##
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
 
   ## Labels to be added to the Ingress
   ##
   labels: {}
-  
+
   ## Hostnames.
   ## Must be provided if Ingress is enabled.
   ##
-  # hosts:
-  #   - grafana.domain.com
-  hosts: []
+  hosts:
+    - grafana.domain.com
 
   ## TLS configuration for Alertmanager Ingress
   ## Secret must be manually created in the namespace
   ##
-  tls: []
-    # - secretName: alertmanager-general-tls
-    #   hosts:
-    #     - alertmanager.example.com
+  tls:
+    - secretName: alertmanager-general-tls
+      hosts:
+        - alertmanager.example.com
 
 
 

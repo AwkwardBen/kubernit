@@ -1,0 +1,12 @@
+kernel:
+  image: linuxkit/kernel:4.14.59
+  cmdline: "console=tty0 ipAddress=192.168.57.2 ipBroadcast=192.167.57.255 ipMask=24"
+init:
+  - wombat/init:dev
+  - wombat/runc:dev
+  - wombat/containerd:dev
+  - wombat/ca-certificates:dev
+  - wombat/getty:dev
+services:
+  - name: nfs-server
+    image: wombat/nfs-server:dev
